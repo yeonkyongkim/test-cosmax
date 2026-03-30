@@ -7,24 +7,22 @@ from io import BytesIO
 st.set_page_config(page_title="COSMAX 시제품 안정성 대시보드", layout="wide")
 st.title("COSMAX 시제품 안정성 분석 대시보드")
 
-import os
+uploaded_file = st.file_uploader("엑셀 파일을 업로드하세요", type=["xlsx"])
 
-DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cosmax_day3_dummy_data_numeric.xlsx")
-
-if not os.path.exists(DATA_PATH):
-    st.error(f"엑셀 파일을 찾을 수 없습니다: {DATA_PATH}")
+if uploaded_file is None:
+    st.info("cosmax_day3_dummy_data_numeric.xlsx 파일을 업로드하면 대시보드가 표시됩니다.")
     st.stop()
 
 # --- 데이터 로드 ---
 @st.cache_data
-def load_data(path):
-    xl = pd.ExcelFile(path)
+def load_data(file):
+    xl = pd.ExcelFile(file)
     product = pd.read_excel(xl, sheet_name="시제품정보")
     test = pd.read_excel(xl, sheet_name="안정성테스트결과")
     codebook = pd.read_excel(xl, sheet_name="코드북")
     return product, test, codebook
 
-product_raw, test_raw, codebook = load_data(DATA_PATH)
+product_raw, test_raw, codebook = load_data(uploaded_file)
 
 # --- 코드북으로 라벨 매핑 생성 ---
 def build_mapping(codebook, sheet, column):
